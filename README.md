@@ -1,10 +1,10 @@
 <B>For this exercise you will need to use the following technologies:</b>
 
-Java 8
-Maven 3.6.*
-Spring Boot 2.3.5.RELEASE 
-Spring data
-Junit test 4.*
+Java 8 <br>
+Maven 3.6.* <br>
+Spring Boot 2.3.5.RELEASE <br>
+Spring data <br>
+Junit test 4.* <br>
 
 You will need to Implement Walt app system.
 
