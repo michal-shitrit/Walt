@@ -53,123 +53,81 @@ public class WaltTest {
     @BeforeEach()
     public void prepareData(){
 
-        City city1 = new City("city1");
-        City city2 = new City("city2");
-        City city3 = new City("city3");
-        City city4 = new City("city4");
+        City jerusalem = new City("Jerusalem");
+        City tlv = new City("Tel-Aviv");
+        City bash = new City("Beer-Sheva");
+        City haifa = new City("Haifa");
 
-        cityRepository.save(city1);
-        cityRepository.save(city2);
-        cityRepository.save(city3);
-        cityRepository.save(city4);
+        cityRepository.save(jerusalem);
+        cityRepository.save(tlv);
+        cityRepository.save(bash);
+        cityRepository.save(haifa);
 
-        Driver driver1 = new Driver("driver1", city1);
-        Driver driver2 = new Driver("driver2", city1);
-        Driver driver3 = new Driver("driver3", city2);
+        createDrivers(jerusalem, tlv, bash, haifa);
 
-        driverRepository.save(driver1);
-        driverRepository.save(driver2);
-        driverRepository.save(driver3);
+        createCustomers(jerusalem, tlv, haifa);
 
-        Customer customer1 = new Customer("name1", city1, "address");
-        Customer customer2 = new Customer("name2", city1, "address");
-        Customer customer3 = new Customer("name3", city2, "address");
-        Customer customer4 = new Customer("name4", city3, "address");
+        createRestaurant(jerusalem, tlv);
+    }
 
-        customerRepository.save(customer1);
-        customerRepository.save(customer2);
-        customerRepository.save(customer3);
-        customerRepository.save(customer4);
+    private void createRestaurant(City jerusalem, City tlv) {
+        Restaurant meat = new Restaurant("meat", jerusalem, "All meat restaurant");
+        Restaurant vegan = new Restaurant("vegan", tlv, "Only vegan");
+        Restaurant cafe = new Restaurant("cafe", tlv, "Coffee shop");
+        Restaurant chinese = new Restaurant("chinese", tlv, "chinese restaurant");
+        Restaurant mexican = new Restaurant("restaurant", tlv, "mexican restaurant ");
 
-        Restaurant restaurant1 = new Restaurant("rest1", city1, "add");
-        Restaurant restaurant2 = new Restaurant("rest2", city2, "add");
-        Restaurant restaurant3 = new Restaurant("rest3", city3, "add");
+        restaurantRepository.save(meat);
+        restaurantRepository.save(vegan);
+        restaurantRepository.save(cafe);
+        restaurantRepository.save(chinese);
+        restaurantRepository.save(mexican);
+    }
 
-        restaurantRepository.save(restaurant1);
-        restaurantRepository.save(restaurant2);
-        restaurantRepository.save(restaurant3);
+    private void createCustomers(City jerusalem, City tlv, City haifa) {
+        Customer beethoven = new Customer("Beethoven", tlv, "Ludwig van Beethoven");
+        Customer mozart = new Customer("Mozart", jerusalem, "Wolfgang Amadeus Mozart");
+        Customer chopin = new Customer("Chopin", haifa, "Frédéric François Chopin");
+        Customer rachmaninoff = new Customer("Rachmaninoff", tlv, "Sergei Rachmaninoff");
+        Customer bach = new Customer("Bach", tlv, "Sebastian Bach. Johann");
+
+        customerRepository.save(beethoven);
+        customerRepository.save(mozart);
+        customerRepository.save(chopin);
+        customerRepository.save(rachmaninoff);
+        customerRepository.save(bach);
+    }
+
+    private void createDrivers(City jerusalem, City tlv, City bash, City haifa) {
+        Driver mary = new Driver("Mary", tlv);
+        Driver patricia = new Driver("Patricia", tlv);
+        Driver jennifer = new Driver("Jennifer", haifa);
+        Driver james = new Driver("James", bash);
+        Driver john = new Driver("John", bash);
+        Driver robert = new Driver("Robert", jerusalem);
+        Driver david = new Driver("David", jerusalem);
+        Driver daniel = new Driver("Daniel", tlv);
+        Driver noa = new Driver("Noa", haifa);
+        Driver ofri = new Driver("Ofri", haifa);
+        Driver nata = new Driver("Neta", jerusalem);
+
+        driverRepository.save(mary);
+        driverRepository.save(patricia);
+        driverRepository.save(jennifer);
+        driverRepository.save(james);
+        driverRepository.save(john);
+        driverRepository.save(robert);
+        driverRepository.save(david);
+        driverRepository.save(daniel);
+        driverRepository.save(noa);
+        driverRepository.save(ofri);
+        driverRepository.save(nata);
     }
 
     @Test
     public void testBasics(){
 
         assertEquals(((List<City>) cityRepository.findAll()).size(),4);
-        assertEquals((driverRepository.findAllDriversByCity(cityRepository.findByName("city1")).size()), 2);
-    }
-
-    @Test
-    public void testCreateSingleOrder(){
-
-        Customer customer3 = customerRepository.findByName("name3");
-        Restaurant restaurant2 = restaurantRepository.findByName("rest2");
-        Date date  = new Date();
-        Driver driver3 = driverRepository.findByName("driver3");
-
-        Delivery delivery = waltService.createOrderAndAssignDriver(customer3,restaurant2, date);
-        assertEquals(driver3.getId(), delivery.getDriver().getId());
-    }
-
-    @Test
-    public void testCreateTwoDeliveries(){
-        Customer customer1 = customerRepository.findByName("name1");
-        Customer customer2 = customerRepository.findByName("name2");
-
-        Restaurant restaurant1 = restaurantRepository.findByName("rest1");
-        Date date  = new Date();
-
-        Delivery delivery = waltService.createOrderAndAssignDriver(customer1,restaurant1, date);
-
-        Driver driver1 = driverRepository.findByName("driver1");
-        Driver driver2 = driverRepository.findByName("driver2");
-        Long expectedSecondDRiver;
-
-        if (delivery.getDriver().getId().equals(driver1.getId())){
-            expectedSecondDRiver = driver2.getId();
-        }else {
-            expectedSecondDRiver = driver1.getId();
-        }
-
-        Delivery delivery2 = waltService.createOrderAndAssignDriver(customer2,restaurant1, date);
-        assertEquals(expectedSecondDRiver, delivery2.getDriver().getId());
-    }
-
-    @Test
-    public void testCreateTwoDeliveriesOneBusy(){
-        Customer customer1 = customerRepository.findByName("name1");
-        Customer customer2 = customerRepository.findByName("name2");
-
-        Restaurant restaurant1 = restaurantRepository.findByName("rest1");
-        LocalDateTime date  = LocalDateTime.of(2020, Month.DECEMBER, 1,22, 0);
-
-        Delivery delivery = waltService.createOrderAndAssignDriver(customer1,restaurant1, Date.from(date.atZone(ZoneId.systemDefault()).toInstant()));
-
-        Driver driver1 = driverRepository.findByName("driver1");
-        Driver driver2 = driverRepository.findByName("driver2");
-        Long expectedSecondDriver;
-
-        if (delivery.getDriver().getId().equals(driver1.getId())){
-            expectedSecondDriver = driver2.getId();
-        }else {
-            expectedSecondDriver = driver1.getId();
-        }
-
-        date = date.plusHours(1);
-        Delivery delivery2 = waltService.createOrderAndAssignDriver(customer2,restaurant1, Date.from(date.atZone(ZoneId.systemDefault()).toInstant()));
-        assertEquals(expectedSecondDriver, delivery2.getDriver().getId());
-
-        date = date.plusHours(2);
-        Delivery delivery3 = waltService.createOrderAndAssignDriver(customer2,restaurant1, Date.from(date.atZone(ZoneId.systemDefault()).toInstant()));
-
-        if (delivery.getDistance() > delivery2.getDistance()){
-            expectedSecondDriver = delivery2.getDriver().getId();
-        }else{
-            expectedSecondDriver = delivery.getDriver().getId();
-        }
-
-        assertEquals(expectedSecondDriver, delivery3.getDriver().getId());
-
-        waltService.getDriverRankReport().stream().forEach(e -> {
-            System.out.println(e.getDriver().getName() + ":"  + e.getTotalDistance());
-        });
+        assertEquals((driverRepository.findAllDriversByCity(cityRepository.findByName("Beer-Sheva")).size()), 2);
     }
 }
